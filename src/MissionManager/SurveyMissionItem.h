@@ -196,7 +196,12 @@ private:
     QPointF _rotatePoint(const QPointF& point, const QPointF& origin, double angle);
     void _intersectLinesWithRect(const QList<QLineF>& lineList, const QRectF& boundRect, QList<QLineF>& resultLines);
     void _intersectLinesWithPolygon(const QList<QLineF>& lineList, const QPolygonF& polygon, QList<QLineF>& resultLines);
+    double _distanceBetweenPointAndLines(QPointF& point, QLineF& line);//寻找点与线的距离
+    double _distanceBetweenPointAndPoint(QPointF& point1, QPointF& point2);//寻找点与点之间的距离
+    QLineF _findClosestLine(QPointF& point, QList<QLineF>& lineList, double minDistance);//在线组中找到离点最近的线
     void _adjustLineDirection(const QList<QLineF>& lineList, QList<QLineF>& resultLines);
+    void _adjustOrder(const QList<QLineF>& lineList, QList<QLineF>& resultLines, double minLaneSeparation);//调整线序
+    void _switchP1andP2(QLineF& line);//调整线的首尾
     void _setSurveyDistance(double surveyDistance);
     void _setCameraShots(int cameraShots);
     void _setCoveredArea(double coveredArea);

@@ -6,6 +6,7 @@
 # (c) 2009-2015 QGroundControl Developers
 # License terms set in COPYING.md
 # -------------------------------------------------
+QML2_IMPORT_PATH="E:/Qt5.7/5.7/msvc2015/qml";
 
 exists($${OUT_PWD}/qgroundcontrol.pro) {
     error("You must use shadow build (e.g. mkdir build; cd build; qmake ../qgroundcontrol.pro).")

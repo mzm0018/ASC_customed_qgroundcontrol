@@ -18,6 +18,9 @@
 #include "AppSettings.h"
 
 #include <QPolygonF>
+#include <map>
+#include <vector>
+using namespace std;
 
 QGC_LOGGING_CATEGORY(SurveyMissionItemLog, "SurveyMissionItemLog")
 
@@ -1062,36 +1065,42 @@ int SurveyMissionItem::_gridGenerator(const QList<QPointF>& polygonPoints,  QLis
     // Make sure all lines are going to same direction. Polygon intersection leads to line which
     // can be in varied directions depending on the order of the intesecting sides.
     QList<QLineF> resultLines;
+    QList<QLineF> myresultLines;
+
     _adjustLineDirection(intersectLines, resultLines);
+    double separation=1;
+
+    _adjustOrder(resultLines,myresultLines,separation);
+
 
     // Calc camera shots here if there are no images in turnaround
     if (_triggerCamera() && !_imagesEverywhere()) {
-        for (int i=0; i<resultLines.count(); i++) {
-            cameraShots += (int)floor(resultLines[i].length() / _triggerDistance());
+        for (int i=0; i<myresultLines.count(); i++) {
+            cameraShots += (int)floor(myresultLines[i].length() / _triggerDistance());
             // Take into account immediate camera trigger at waypoint entry
             cameraShots++;
         }
     }
 
     // Turn into a path
-    for (int i=0; i<resultLines.count(); i++) {
+    for (int i=0; i<myresultLines.count(); i++) {
         QLineF          transectLine;
         QList<QPointF>  transectPoints;
-        const QLineF&   line = resultLines[i];
+        const QLineF&   line = myresultLines[i];
 
         float turnaroundPosition = _turnaroundDistance() / line.length();
 
-        if (i & 1) {
-            transectLine = QLineF(line.p2(), line.p1());
-        } else {
-            transectLine = QLineF(line.p1(), line.p2());
-        }
-
+        //if (i & 1) {
+        //    transectLine = QLineF(line.p2(), line.p1());
+        //} else {
+        //    transectLine = QLineF(line.p1(), line.p2());
+        //}
+        transectLine = QLineF(line.p2(), line.p1());
         // Build the points along the transect
 
-        if (_hasTurnaround()) {
-            transectPoints.append(transectLine.pointAt(-turnaroundPosition));
-        }
+        //if (_hasTurnaround()) {
+            //transectPoints.append(transectLine.pointAt(-turnaroundPosition));
+        //}
 
         // Polygon entry point
         transectPoints.append(transectLine.p1());
@@ -1389,4 +1398,93 @@ void SurveyMissionItem::_polygonDirtyChanged(bool dirty)
     if (dirty) {
         setDirty(true);
     }
+}
+
+void SurveyMissionItem::_adjustOrder(const QList<QLineF> &lineList, QList<QLineF> &resultLines, double minLaneSeparation)
+{
+    //double gridAngle = _gridAngleFact.rawValue().toDouble();
+        double gridSpacing = _gridSpacingFact.rawValue().toDouble();
+        QList<QLineF> lineListtobeHandled=lineList;
+        QList<QLineF> ans;
+
+        double minSeparationDist = minLaneSeparation * gridSpacing+1;
+        //QPointF startpos=lineList[0].p1;
+        QLineF closest=_findClosestLine(lineList[0].p2(),lineListtobeHandled, minSeparationDist);
+        QPointF lastpnt=lineList[0].p2();
+        //map<double, QLineF> mylineList;
+        ans.append(lineListtobeHandled[0]);
+        lineListtobeHandled.removeFirst();
+        while(lineListtobeHandled.count()>0)
+        {
+            double dist1=_distanceBetweenPointAndPoint(closest.p1(),lastpnt);
+            double dist2=_distanceBetweenPointAndPoint(closest.p2(),lastpnt);
+            QLineF linetoberemoved=closest;
+            if(dist1 > dist2)
+                _switchP1andP2(closest);
+            ans.append(closest);
+            lastpnt=closest.p2();
+            lineListtobeHandled.removeOne(linetoberemoved);
+            if(lineListtobeHandled.count()!=0)
+                closest=_findClosestLine(lastpnt,lineListtobeHandled,minSeparationDist);
+        }
+        resultLines=ans;
+}
+
+double SurveyMissionItem::_distanceBetweenPointAndLines(QPointF& point, QLineF& line)    //计算点与航线间的距离
+{
+    double vector1_x=point.x()-line.p1().x();
+    double vector1_y=point.y()-line.p1().y();
+    double vector2_x=point.x()-line.p2().x();
+    double vector2_y=point.y()-line.p2().y();
+
+    double area=vector1_x * vector2_y - vector2_x * vector1_y;
+    double distance=fabs(area)/line.length();
+    return distance;
+}
+
+double SurveyMissionItem::_distanceBetweenPointAndPoint(QPointF& point1, QPointF& point2)
+{
+    double dx=point2.x()-point1.x();
+    double dy=point2.y()-point1.y();
+    double dist=sqrt(dx*dx+dy*dy);
+    return dist;
+}
+
+void SurveyMissionItem::_switchP1andP2(QLineF &line)
+{
+    QPointF temppnt = line.p2();
+        line.setP2(line.p1());
+        line.setP1(temppnt);
+}
+
+QLineF SurveyMissionItem::_findClosestLine(QPointF &point, QList<QLineF> &lineList, double minDistance)
+{
+    map<double,QLineF> mylineList;   //将航线与point点的距离存为map对；
+    map<double,QLineF>::iterator it;   //遍历器；
+    for(int i=0;i<lineList.count();i++)     //依次将距离和航线存入mylineList
+    {
+        double distance=_distanceBetweenPointAndLines(point,lineList[i]);
+
+        mylineList.insert(pair<double,QLineF> (distance,lineList[i]));
+
+    }
+
+    it = mylineList.begin();
+    double tempmin;
+    while (it != mylineList.end())  //遍历List，找到最近但满足大于minDistance的航线
+    {
+        tempmin=it->first;
+        if(tempmin>=minDistance)
+        {
+            break;
+        }
+        else
+            it++;
+    }
+    if(it==mylineList.end())
+    {
+        it--;
+        tempmin=it->first;
+    }
+    return it->second;  //返回这条航线
 }
