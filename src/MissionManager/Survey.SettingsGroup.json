@@ -165,5 +165,12 @@
     "enumStrings":      "Position 1, Position 2, Position 3, Position 4",
     "enumValues":       "0,1,2,3",
     "defaultValue":     0
+},
+{
+    "name":             "GapLine",
+    "shortDescription": "The minimum line numbers between the line using now and the next line",
+    "type":             "uint",
+    "min":              0,
+    "defaultValue":     0
 }
 ]

@@ -47,6 +47,7 @@ public:
     Q_PROPERTY(Fact*                fixedValueIsAltitude        READ fixedValueIsAltitude           CONSTANT)
     Q_PROPERTY(Fact*                manualGrid                  READ manualGrid                     CONSTANT)
     Q_PROPERTY(Fact*                camera                      READ camera                         CONSTANT)
+    //Q_PROPERTY(Fact*                gapLine                     READ gapLine                        CONSTANT)
 
     Q_PROPERTY(bool                 cameraOrientationFixed      MEMBER _cameraOrientationFixed      NOTIFY cameraOrientationFixedChanged)
     Q_PROPERTY(bool                 hoverAndCaptureAllowed      READ hoverAndCaptureAllowed         CONSTANT)
@@ -83,6 +84,7 @@ public:
     Fact* cameraOrientationLandscape(void) { return &_cameraOrientationLandscapeFact; }
     Fact* fixedValueIsAltitude      (void) { return &_fixedValueIsAltitudeFact; }
     Fact* camera                    (void) { return &_cameraFact; }
+    //Fact* gapLine                   (void) { return &_gapLineFact;}
 
     int             cameraShots             (void) const;
     double          coveredArea             (void) const { return _coveredArea; }
@@ -164,6 +166,7 @@ public:
     static const char* cameraOrientationLandscapeName;
     static const char* fixedValueIsAltitudeName;
     static const char* cameraName;
+    //static const char* gapLineName;
 
 signals:
     void gridPointsChanged                  (void);
@@ -272,6 +275,7 @@ private:
     SettingsFact    _cameraOrientationLandscapeFact;
     SettingsFact    _fixedValueIsAltitudeFact;
     SettingsFact    _cameraFact;
+    //SettingsFact    _gapLineFact;
 
     static const char* _jsonGridObjectKey;
     static const char* _jsonGridAltitudeKey;
@@ -298,7 +302,7 @@ private:
     static const char* _jsonCameraOrientationLandscapeKey;
     static const char* _jsonFixedValueIsAltitudeKey;
     static const char* _jsonRefly90DegreesKey;
-
+    //static const char* _jsonGapLineKey;
     static const int _hoverAndCaptureDelaySeconds = 1;
 };
 

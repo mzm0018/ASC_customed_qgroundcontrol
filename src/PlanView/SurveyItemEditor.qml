@@ -28,13 +28,14 @@ Rectangle {
     property real   _margin:            ScreenTools.defaultFontPixelWidth / 2
     property int    _cameraIndex:       1
     property real   _fieldWidth:        ScreenTools.defaultFontPixelWidth * 10.5
-    property var    _cameraList:        [ qsTr("Manual Grid (no camera specs)"), qsTr("Custom Camera Grid") ]
+    property var    _cameraList:        [ qsTr("Manual Grid (no camera specs)"), qsTr("ASC_Agriculture"), qsTr("Custom Camera Grid") ]
     property var    _vehicle:           QGroundControl.multiVehicleManager.activeVehicle ? QGroundControl.multiVehicleManager.activeVehicle : QGroundControl.multiVehicleManager.offlineEditingVehicle
     property var    _vehicleCameraList: _vehicle.cameraList
 
     readonly property int _gridTypeManual:          0
-    readonly property int _gridTypeCustomCamera:    1
-    readonly property int _gridTypeCamera:          2
+    readonly property int _gridTypeCustomCamera:    2
+    readonly property int _ASCAgriculture:          1
+    readonly property int _gridTypeCamera:          3
 
     Component.onCompleted: {
         for (var i=0; i<_vehicle.cameraList.length; i++) {
@@ -220,7 +221,10 @@ Rectangle {
                         missionItem.camera.value = gridTypeCombo.textAt(index)
                         missionItem.cameraOrientationFixed = false
                         missionItem.cameraMinTriggerInterval = 0
-                    } else {
+                    } else if (index == _ASCAgriculture){
+                        missionItem.manualGrid.value = true
+                        missionItem.fixedValueIsAltitude.value = true
+                    }else {
                         missionItem.manualGrid.value = false
                         missionItem.camera.value = gridTypeCombo.textAt(index)
                         _noCameraValueRecalc = true
@@ -273,7 +277,7 @@ Rectangle {
             anchors.left:   parent.left
             anchors.right:  parent.right
             spacing:        _margin
-            visible:        gridTypeCombo.currentIndex != _gridTypeManual
+            visible:        gridTypeCombo.currentIndex != _gridTypeManual && gridTypeCombo.currentIndex != _ASCAgriculture
 
             Row {
                 spacing:                    _margin
@@ -522,7 +526,7 @@ Rectangle {
         SectionHeader {
             id:         manualGridHeader
             text:       qsTr("Grid")
-            visible:    gridTypeCombo.currentIndex == _gridTypeManual
+            visible:    gridTypeCombo.currentIndex == _gridTypeManual || gridTypeCombo.currentIndex == _ASCAgriculture
         }
 
         GridLayout {
@@ -622,6 +626,34 @@ Rectangle {
                 fact:               missionItem.gridAltitudeRelative
                 Layout.columnSpan:  2
             }
+        }
+
+        //ASC_Agriculture_Grid
+        SectionHeader {
+            id:         ascagriculturelGridHeader
+            text:       qsTr("ASC_Agriculture_Grid")
+            visible:    gridTypeCombo.currentIndex == _ASCAgriculture
+        }
+        GridLayout {
+            anchors.left:   parent.left
+            anchors.right:  parent.right
+            columnSpacing:  _margin
+            rowSpacing:     _margin
+            columns:        2
+            visible:        ascagriculturelGridHeader.visible && manualGridHeader.checked
+            RowLayout{
+                QGCLabel {
+                    id:                 ascagrivultureText
+                    text:               qsTr("GapLine")
+                    Layout.fillWidth:  true
+                }
+
+                //FactTextField {
+                    //Layout.preferredWidth:  _root._fieldWidth
+                    //fact:                   missionItem.gapLine
+                //}
+            }
+
         }
 
         SectionHeader {
