@@ -75,7 +75,7 @@ void SurveyMissionItemTest::_testDirty(void)
     // These facts should set dirty when changed
     QList<Fact*> rgFacts;
     rgFacts << _surveyItem->gridAltitude() << _surveyItem->gridAngle() << _surveyItem->gridSpacing() << _surveyItem->turnaroundDist() << _surveyItem->cameraTriggerDistance() <<
-               _surveyItem->gridAltitudeRelative() << _surveyItem->cameraTriggerInTurnaround() << _surveyItem->hoverAndCapture();
+               _surveyItem->gridAltitudeRelative() << _surveyItem->cameraTriggerInTurnaround() << _surveyItem->hoverAndCapture()<< _surveyItem->gapLine();
     foreach(Fact* fact, rgFacts) {
         qDebug() << fact->name();
         QVERIFY(!_surveyItem->dirty());
@@ -131,7 +131,7 @@ void SurveyMissionItemTest::_testCameraValueChanged(void)
     // These facts should not trigger cameraValueChanged
     rgFacts << _surveyItem->gridAltitude() << _surveyItem->gridAngle() << _surveyItem->gridSpacing() << _surveyItem->turnaroundDist() << _surveyItem->cameraTriggerDistance() <<
                _surveyItem->gridAltitudeRelative() << _surveyItem->cameraTriggerInTurnaround() << _surveyItem->hoverAndCapture() <<
-               _surveyItem->fixedValueIsAltitude() << _surveyItem->camera() << _surveyItem->manualGrid();
+               _surveyItem->fixedValueIsAltitude() << _surveyItem->camera() << _surveyItem->manualGrid() << _surveyItem->gapLine();
     foreach(Fact* fact, rgFacts) {
         qDebug() << fact->name();
         if (fact->typeIsBool()) {

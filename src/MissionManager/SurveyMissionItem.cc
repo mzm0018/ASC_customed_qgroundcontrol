@@ -51,9 +51,9 @@ const char* SurveyMissionItem::_jsonManualGridKey =                 "manualGrid"
 const char* SurveyMissionItem::_jsonCameraOrientationLandscapeKey = "orientationLandscape";
 const char* SurveyMissionItem::_jsonFixedValueIsAltitudeKey =       "fixedValueIsAltitude";
 const char* SurveyMissionItem::_jsonRefly90DegreesKey =             "refly90Degrees";
-//const char* SurveyMissionItem::_jsonGapLineKey =                    "gapLine";
+const char* SurveyMissionItem::_jsonGapLineKey =                    "gapLine";
 
-//const char* SurveyMissionItem::gapLineName=                     "GapLine";
+const char* SurveyMissionItem::gapLineName=                     "GapLine";
 const char* SurveyMissionItem::settingsGroup =                  "Survey";
 const char* SurveyMissionItem::manualGridName =                 "ManualGrid";
 const char* SurveyMissionItem::gridAltitudeName =               "GridAltitude";
@@ -115,7 +115,7 @@ SurveyMissionItem::SurveyMissionItem(Vehicle* vehicle, QObject* parent)
     , _cameraOrientationLandscapeFact   (settingsGroup, _metaDataMap[cameraOrientationLandscapeName])
     , _fixedValueIsAltitudeFact         (settingsGroup, _metaDataMap[fixedValueIsAltitudeName])
     , _cameraFact                       (settingsGroup, _metaDataMap[cameraName])
-    //, _gapLineFact                      (settingsGroup, _metaDataMap[gapLineName])
+    , _gapLineFact                      (settingsGroup, _metaDataMap[gapLineName])
 {
     _editorQml = "qrc:/qml/SurveyItemEditor.qml";
 
@@ -138,7 +138,7 @@ SurveyMissionItem::SurveyMissionItem(Vehicle* vehicle, QObject* parent)
     connect(&_cameraTriggerInTurnaroundFact,    &Fact::valueChanged,                        this, &SurveyMissionItem::_generateGrid);
     connect(&_hoverAndCaptureFact,              &Fact::valueChanged,                        this, &SurveyMissionItem::_generateGrid);
     connect(this,                               &SurveyMissionItem::refly90DegreesChanged,  this, &SurveyMissionItem::_generateGrid);
-    //connect(&_gapLineFact,                      &Fact::valueChanged,                        this, &SurveyMissionItem::_generateGrid);
+    connect(&_gapLineFact,                      &Fact::valueChanged,                        this, &SurveyMissionItem::_generateGrid);
     connect(&_gridAltitudeFact,                 &Fact::valueChanged, this, &SurveyMissionItem::_updateCoordinateAltitude);
 
     connect(&_gridAltitudeRelativeFact,         &Fact::valueChanged, this, &SurveyMissionItem::_setDirty);
@@ -240,7 +240,7 @@ void SurveyMissionItem::save(QJsonArray&  missionItems)
     gridObject[_jsonGridAltitudeKey] =          _gridAltitudeFact.rawValue().toDouble();
     gridObject[_jsonGridAltitudeRelativeKey] =  _gridAltitudeRelativeFact.rawValue().toBool();
     gridObject[_jsonGridAngleKey] =             _gridAngleFact.rawValue().toDouble();
-    //gridObject[_jsonGapLineKey] =               _gapLineFact.rawValue().toUInt();
+    gridObject[_jsonGapLineKey] =               _gapLineFact.rawValue().toInt();
     gridObject[_jsonGridSpacingKey] =           _gridSpacingFact.rawValue().toDouble();
     gridObject[_jsonGridEntryLocationKey] =     _gridEntryLocationFact.rawValue().toDouble();
     gridObject[_jsonTurnaroundDistKey] =        _turnaroundDistFact.rawValue().toDouble();
@@ -348,12 +348,14 @@ bool SurveyMissionItem::load(const QJsonObject& complexObject, int sequenceNumbe
         { _jsonGridSpacingKey,                  QJsonValue::Double, true },
         { _jsonGridEntryLocationKey,            QJsonValue::Double, false },
         { _jsonTurnaroundDistKey,               QJsonValue::Double, true },
+        { _jsonGapLineKey,                      QJsonValue::Double, true },
     };
     QJsonObject gridObject = v2Object[_jsonGridObjectKey].toObject();
     if (!JsonHelper::validateKeys(gridObject, gridKeyInfoList, errorString)) {
         return false;
     }
     _gridAltitudeFact.setRawValue           (gridObject[_jsonGridAltitudeKey].toDouble());
+    _gapLineFact.setRawValue                (gridObject[_jsonGapLineKey].toInt());
     _gridAngleFact.setRawValue              (gridObject[_jsonGridAngleKey].toDouble());
     _gridSpacingFact.setRawValue            (gridObject[_jsonGridSpacingKey].toDouble());
     _turnaroundDistFact.setRawValue         (gridObject[_jsonTurnaroundDistKey].toDouble());
@@ -1072,10 +1074,12 @@ int SurveyMissionItem::_gridGenerator(const QList<QPointF>& polygonPoints,  QLis
     QList<QLineF> myresultLines;
 
     _adjustLineDirection(intersectLines, resultLines);
-    double separation=1;
 
+    int separation = 0;
+    if( ascagricultureIsSelected == true){
+        separation = _gapLineFact.rawValue().Int;
+    }
     _adjustOrder(resultLines,myresultLines,separation);
-
 
     // Calc camera shots here if there are no images in turnaround
     if (_triggerCamera() && !_imagesEverywhere()) {
@@ -1404,7 +1408,7 @@ void SurveyMissionItem::_polygonDirtyChanged(bool dirty)
     }
 }
 
-void SurveyMissionItem::_adjustOrder(const QList<QLineF> &lineList, QList<QLineF> &resultLines, double minLaneSeparation)
+void SurveyMissionItem::_adjustOrder(const QList<QLineF> &lineList, QList<QLineF> &resultLines, int minLaneSeparation)
 {
     //double gridAngle = _gridAngleFact.rawValue().toDouble();
         double gridSpacing = _gridSpacingFact.rawValue().toDouble();

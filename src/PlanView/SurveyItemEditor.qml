@@ -224,6 +224,7 @@ Rectangle {
                     } else if (index == _ASCAgriculture){
                         missionItem.manualGrid.value = true
                         missionItem.fixedValueIsAltitude.value = true
+                        missionItem.ascagricultureIsSelected = true
                     }else {
                         missionItem.manualGrid.value = false
                         missionItem.camera.value = gridTypeCombo.textAt(index)
@@ -648,10 +649,10 @@ Rectangle {
                     Layout.fillWidth:  true
                 }
 
-                //FactTextField {
-                    //Layout.preferredWidth:  _root._fieldWidth
-                    //fact:                   missionItem.gapLine
-                //}
+                FactTextField {
+                    fact:                   missionItem.gapLine
+                    Layout.fillWidth:       true
+                }
             }
 
         }

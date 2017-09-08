@@ -169,7 +169,7 @@
 {
     "name":             "GapLine",
     "shortDescription": "The minimum line numbers between the line using now and the next line",
-    "type":             "uint",
+    "type":             "uint32",
     "min":              0,
     "defaultValue":     0
 }
