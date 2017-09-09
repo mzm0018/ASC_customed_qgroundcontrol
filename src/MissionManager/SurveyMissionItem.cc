@@ -77,6 +77,7 @@ const char* SurveyMissionItem::cameraTriggerName =              "CameraTrigger";
 const char* SurveyMissionItem::cameraOrientationLandscapeName = "CameraOrientationLandscape";
 const char* SurveyMissionItem::fixedValueIsAltitudeName =       "FixedValueIsAltitude";
 const char* SurveyMissionItem::cameraName =                     "Camera";
+//const char* SurveyMissionItem::ascAgricultureIsSelectedName =   "AscAgricultureIsSelected";
 
 SurveyMissionItem::SurveyMissionItem(Vehicle* vehicle, QObject* parent)
     : ComplexMissionItem(vehicle, parent)
@@ -116,6 +117,7 @@ SurveyMissionItem::SurveyMissionItem(Vehicle* vehicle, QObject* parent)
     , _fixedValueIsAltitudeFact         (settingsGroup, _metaDataMap[fixedValueIsAltitudeName])
     , _cameraFact                       (settingsGroup, _metaDataMap[cameraName])
     , _gapLineFact                      (settingsGroup, _metaDataMap[gapLineName])
+    //, _ascAgricultureIsSelectedFact     (settingsGroup, _metaDataMap[ascAgricultureIsSelectedName])
 {
     _editorQml = "qrc:/qml/SurveyItemEditor.qml";
 
@@ -1075,10 +1077,9 @@ int SurveyMissionItem::_gridGenerator(const QList<QPointF>& polygonPoints,  QLis
 
     _adjustLineDirection(intersectLines, resultLines);
 
-    int separation = 0;
-    if( ascagricultureIsSelected == true){
-        separation = _gapLineFact.rawValue().Int;
-    }
+    //if( _ascagricultureIsSelectedFact.rawValue.toBool ){
+    separation = _gapLineFact.rawValue().toInt();
+    //}
     _adjustOrder(resultLines,myresultLines,separation);
 
     // Calc camera shots here if there are no images in turnaround

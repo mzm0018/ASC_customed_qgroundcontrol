@@ -85,7 +85,8 @@ public:
     Fact* fixedValueIsAltitude      (void) { return &_fixedValueIsAltitudeFact; }
     Fact* camera                    (void) { return &_cameraFact; }
     Fact* gapLine                   (void) { return &_gapLineFact;}
-
+    //Fact* ascAgricultureIsSelected  (void) { return &_ascAgricultureIsSelectedFact;}
+    int             separation              = 0;
     int             cameraShots             (void) const;
     double          coveredArea             (void) const { return _coveredArea; }
     double          timeBetweenShots        (void) const;
@@ -106,7 +107,7 @@ public:
 
     // Overrides from VisualMissionItem
 
-    bool            ascagricultureIsSelected = false;
+    //bool            ascagricultureIsSelected = false;
 
     bool            dirty                   (void) const final { return _dirty; }
     bool            isSimpleItem            (void) const final { return false; }
@@ -169,6 +170,7 @@ public:
     static const char* fixedValueIsAltitudeName;
     static const char* cameraName;
     static const char* gapLineName;
+//    static const char* ascAgricultureIsSelectedName;
 
 signals:
     void gridPointsChanged                  (void);
@@ -278,6 +280,7 @@ private:
     SettingsFact    _fixedValueIsAltitudeFact;
     SettingsFact    _cameraFact;
     SettingsFact    _gapLineFact;
+    //SettingsFact    _ascAgricultureIsSelectedFact;
 
     static const char* _jsonGridObjectKey;
     static const char* _jsonGridAltitudeKey;
