@@ -1107,9 +1107,9 @@ int SurveyMissionItem::_gridGenerator(const QList<QPointF>& polygonPoints,  QLis
         transectLine = QLineF(line.p2(), line.p1());
         // Build the points along the transect
 
-        //if (_hasTurnaround()) {
-            //transectPoints.append(transectLine.pointAt(-turnaroundPosition));
-        //}
+        if (_hasTurnaround()) {
+            transectPoints.append(transectLine.pointAt(-turnaroundPosition/6));
+        }
 
         // Polygon entry point
         transectPoints.append(transectLine.p1());
